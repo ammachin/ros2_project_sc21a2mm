@@ -78,15 +78,15 @@ class Robot(Node):
 
         # Find the contours that appear within the certain colour mask
         # Just blue first
-        contours, _ = cv2.findContours(blue_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
-        self.green_found = False
+        b_contours, _ = cv2.findContours(blue_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
+        self.blue_found = False
         self.go_forward = False
         self.go_back = False
 
         # Loop over the contours
-        if len(contours)>0:
+        if len(b_contours)>0:
             # Find the largest contour
-            c = max(contours, key=cv2.contourArea)
+            c = max(b_contours, key=cv2.contourArea)
 
             if cv2.contourArea(c) > self.threshold_contour:
                 # Draw circle
@@ -103,10 +103,62 @@ class Robot(Node):
         #if self.blue_found is True:
             #print("Blue detected!")
             
+        
+        # Repeat for green
+        g_contours, _ = cv2.findContours(green_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
+        self.green_found = False
+
+        # Loop over the contours
+        if len(g_contours)>0:
+            # Find the largest contour
+            c = max(g_contours, key=cv2.contourArea)
+
+            if cv2.contourArea(c) > self.threshold_contour:
+                # Draw circle
+                (x, y), radius = cv2.minEnclosingCircle(c)
+                centre = (int(x), int(y))
+                radius = int(radius)
+                
+                cv2.circle(image, centre, radius, (255, 0, 255), 1)
+                
+                self.green_found = True
+            else:
+                self.green_found = False
+                
+        #if self.green_found is True:
+            #print("Green detected!")
+            
+        # Repeat for red
+        r_contours, _ = cv2.findContours(red_image, mode=cv2.RETR_TREE, method=cv2.CHAIN_APPROX_SIMPLE)
+        self.red_found = False
+        self.go_forward = False
+        self.go_back = False
+
+        # Loop over the contours
+        if len(r_contours)>0:
+            # Find the largest contour
+            c = max(r_contours, key=cv2.contourArea)
+
+            if cv2.contourArea(c) > self.threshold_contour:
+                # Draw circle
+                (x, y), radius = cv2.minEnclosingCircle(c)
+                centre = (int(x), int(y))
+                radius = int(radius)
+                
+                cv2.circle(image, centre, radius, (0, 255, 255), 1)
+                
+                self.red_found = True
+            else:
+                self.red_found = False
+                
+        #if self.red_found is True:
+            #print("Red detected!")
+            
+            
         # Show image
-        cv2.namedWindow('blue_resultant', cv2.WINDOW_NORMAL)
-        cv2.imshow('blue_resultant', image)
-        cv2.resizeWindow('blue_resultant', 320, 240)
+        cv2.namedWindow('resultant', cv2.WINDOW_NORMAL)
+        cv2.imshow('resultant', image)
+        cv2.resizeWindow('resultant', 320, 240)
         cv2.waitKey(3)
             
 
@@ -119,7 +171,7 @@ class Robot(Node):
                 
             elif cv2.contourArea(c) < self.threshold_move:
                 # Too far away from object
-                #rint("Going forwards")
+                #print("Going forwards")
                 self.go_forward = True
             # else:
             #     self.stop() 
